@@ -1,0 +1,40 @@
+openssl dhparam -out /etc/apache2/dhparams/dhparams.pem 2048
+letsencrypt certonly -n --webroot -w /var/www/html -m prosf4546@gmail.com --agree-tos -d database.porapipat.me
+
+<VirtualHost *:80>
+    ServerName database.porapipat.me
+    DocumentRoot /var/www/html
+
+    RewriteEngine On
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R,L]
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName database.porapipat.me
+    DocumentRoot /var/www/html
+
+    SSLEngine on
+    SSLCertificateFile /etc/letsencrypt/live/database.porapipat.me/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/database.porapipat.me/privkey.pem
+
+    SSLProtocol TLSv1.2 TLSv1.3
+    SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:ECDHE-RSA-AES128-GCM-SHA256:AES256+EECDH:DHE-RSA-AES128-GCM-SHA256:AES256+EDH:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4
+    SSLHonorCipherOrder on
+    SSLCompression off
+    SSLSessionTickets off
+
+    Protocols h2 http/1.1
+    H2Direct on
+
+    ProxyPreserveHost On
+    ProxyPass /api/ http://localhost:4000/
+    ProxyPassReverse /api/ http://localhost:4000/
+    <Proxy *>
+        Require all granted
+    </Proxy>
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+

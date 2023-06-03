@@ -1,0 +1,62 @@
+openssl dhparam -out /etc/apache2/dhparams/dhparams.pem 2048
+letsencrypt certonly -n --webroot -w /var/www/html -m prosf4546@gmail.com --agree-tos -d database.porapipat.me
+
+upstream MY_APP {
+    server 127.0.0.1:3000;
+    server 127.0.0.1:3000 max_fails=1 fail_timeout=30s backup;
+    keepalive 64;
+}
+server {
+    listen 443 http2;
+    server_name hospital.porapipat.me;
+    add_header X-Frame-Options "SAMEORIGIN";
+
+    keepalive_timeout 30;
+
+    ssl on;
+    ssl_certificate /etc/letsencrypt/live/hospital.porapipat.me/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/hospital.porapipat.me/privkey.pem;
+    ssl_dhparam /etc/nginx/dhparams/dhparams.pem;
+
+    #prevent poodle
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:ECDHE-RSA-AES128-GCM-SHA256:AES256+EECDH:DHE-RSA-AES128-GCM-SHA256:AES256+EDH:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4";
+    #ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256';
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+
+    #add_header Referrer-Policy "no-referrer" always;
+    #add_header X-Content-Type-Options "nosniff" always;
+    #add_header X-Download-Options "noopen" always;
+    #add_header X-Frame-Options "SAMEORIGIN" always;
+    #add_header X-Permitted-Cross-Domain-Policies "none" always;
+    #add_header X-Robots-Tag "none" always;
+    #add_header X-XSS-Protection "1; mode=block" always;
+
+    location / {
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Host $http_host;
+      proxy_set_header X-NginX-Proxy true;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      proxy_max_temp_file_size 0;
+      proxy_pass http://MY_APP/;
+      proxy_redirect off;
+      proxy_read_timeout 240s;
+    }
+}
+
+server {
+  listen 80 default_server;
+  server_name _;
+  index index.html index.htm index.nginx-debian.html;
+  root /var/www/html;
+  location ^~ /.well-known/acme-challenge {
+    allow all;
+    default_type "text/plain";
+  }
+  location / {
+    return 301 https://$host$request_uri;
+  }
+}

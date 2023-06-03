@@ -1,0 +1,48 @@
+openssl dhparam -out /etc/apache2/dhparams/dhparams.pem 2048
+letsencrypt certonly -n --webroot -w /var/www/html -m prosf4546@gmail.com --agree-tos -d database.porapipat.me
+
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name porapipat.live;
+    rewrite ^/(.*) https://porapipat.live/$1 permanent;
+}
+
+server {
+        listen 443 http2;
+        listen [::]:443 ssl http2;
+
+        #quic_retry on;
+        #ssl_early_data on;
+
+        #http3_max_field_size 5000;
+        #http3_max_table_capacity 50;
+        #http3_max_blocked_streams 30;
+        #http3_max_concurrent_pushes 30;
+        #http3_push 10;
+        #http3_push_preload on;
+
+        #add_header alt-svc '$quic=":443"; ma=3600';
+
+        root /var/www/porapipat.live/html;
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name _;
+
+        ssl on;
+        ssl_certificate /etc/letsencrypt/live/hospital.porapipat.me/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/hospital.porapipat.me/privkey.pem;
+        ssl_dhparam /etc/nginx/dhparams/dhparams.pem;
+
+        ssl_session_timeout 5m;
+
+        ssl_protocols TLSv1.1 TLSv1.2 TLSv1.3;
+        ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
+        ssl_prefer_server_ciphers on;
+
+        location / {
+                try_files $uri $uri/ =404;
+        }
+
+}
