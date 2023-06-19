@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f1f1f1;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: Consolas, monospace;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>API Information</h1>
+        <h2>Base URL: <a href="https://db.porapipat.me">https://db.porapipat.me</a></h2>
+
+        <h2>Routes:</h2>
+        <ul>
+            <li>
+                <code>GET /</code> - Returns the index page.<br>
+                <code>Response: GET INDEX</code>
+            </li>
+            <li>
+                <code>POST /</code> - Submits data to the index page.<br>
+                <code>Response: POST INDEX</code>
+            </li>
+            <li>
+                <code>GET /appoint</code> - Endpoint for 'appoint' router.
+            </li>
+            <li>
+                <code>GET /department</code> - Endpoint for 'department' router.
+            </li>
+            <!-- Add more routes for the other routers here -->
+        </ul>
+    </div>
+</body>
+</html>
