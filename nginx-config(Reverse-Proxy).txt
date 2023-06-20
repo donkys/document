@@ -1,5 +1,6 @@
-openssl dhparam -out /etc/apache2/dhparams/dhparams.pem 2048
-letsencrypt certonly -n --webroot -w /var/www/html -m prosf4546@gmail.com --agree-tos -d database.porapipat.me
+sudo mkdir /etc/apache2/dhparams
+sudo openssl dhparam -out /etc/apache2/dhparams/dhparams.pem 2048
+sudo letsencrypt certonly -n --webroot -w /var/www/html -m prosf4546@gmail.com --agree-tos -d database.porapipat.me
 
 upstream MY_APP {
     server 127.0.0.1:3000;
